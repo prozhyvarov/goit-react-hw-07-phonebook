@@ -1,28 +1,51 @@
 import { createSlice } from '@reduxjs/toolkit';
-import persistReducer from 'redux-persist/es/persistReducer';
+import {
+  addContactsThunk,
+  delContactsThunk,
+  getContactsThunk,
+} from './contactsThunk';
 import storage from 'redux-persist/lib/storage';
+import persistReducer from 'redux-persist/es/persistReducer';
 
-const contactkInitialState = {
-  items: [
-    { id: 'id-1', name: 'Rosie Simpson', number: '459-12-56' },
-    { id: 'id-2', name: 'Hermione Kline', number: '443-89-12' },
-    { id: 'id-3', name: 'Eden Clements', number: '645-17-79' },
-    { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
-  ],
+const handlePaending = state => {
+  state.isLoading = true;
 };
 
-const contactSlice = createSlice({
+const handleReject = (state, { payload }) => {
+  state.error = payload;
+};
+
+const sliceContact = createSlice({
   name: 'contacts',
-  initialState: contactkInitialState,
-  reducers: {
-    addContact(state, action) {
-      state.items.unshift(action.payload);
-    },
-    deleteContact(state, action) {
-      state.items = state.items.filter(
-        contact => contact.id !== action.payload
-      );
-    },
+  initialState: {
+    items: [
+      {
+        createdAt: '2023-04-05T23:25:30.677Z',
+        name: 'Dolores Morar',
+        phone: '(570) 817-2230',
+        id: '29',
+      },
+    ],
+    isLoading: false,
+    error: null,
+  },
+  extraReducers: builder => {
+    builder
+      .addCase(getContactsThunk.pending, handlePaending)
+      .addCase(getContactsThunk.rejected, handleReject)
+      .addCase(getContactsThunk.fulfilled, (state, { payload }) => {
+        state.items = payload;
+      })
+      .addCase(addContactsThunk.pending, handlePaending)
+      .addCase(addContactsThunk.rejected, handleReject)
+      .addCase(addContactsThunk.fulfilled, (state, { payload }) => {
+        state.items = [payload, ...state.items];
+      })
+      .addCase(delContactsThunk.pending, handlePaending)
+      .addCase(delContactsThunk.rejected, handleReject)
+      .addCase(delContactsThunk.fulfilled, (state, { payload }) => {
+        state.items = state.items.filter(item => item.id !== payload.id);
+      });
   },
 });
 
@@ -34,11 +57,8 @@ const persistConfig = {
 
 export const persistedContactReducer = persistReducer(
   persistConfig,
-  contactSlice.reducer
+  sliceContact.reducer
 );
 
-export const { addContact, deleteContact } = contactSlice.actions;
-
-export const getContacts = state => state.contacts.items;
-
-export const contactsReducer = contactSlice.reducer;
+export const { addContactsActions, delContactsActions } = sliceContact.actions;
+export const contactsReducer = sliceContact.reducer;

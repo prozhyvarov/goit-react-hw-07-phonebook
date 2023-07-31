@@ -1,41 +1,29 @@
-import React, { useState } from 'react';
-import { nanoid } from 'nanoid';
+import React, { useEffect, useState } from 'react';
 
 import { Form, Input, Label, Button } from './ContactForm.styled';
 import { useDispatch, useSelector } from 'react-redux';
-import { addContact, getContacts } from 'redux/contactsSlice';
+import { addContactsThunk, getContactsThunk } from 'redux/contactsThunk';
 import Notiflix from 'notiflix';
 
+
 const ContactForm = () => {
-  const contacts = useSelector(getContacts);
   const dispatch = useDispatch();
+  const [contactName, setcontactName] = useState('');
+  const [number, setNumber] = useState('');
 
-const [contactName, setcontactName] = useState('');
-const [number, setNumber] = useState('');
+  useEffect(() => {
+    dispatch(getContactsThunk());
+  }, [dispatch]);
 
-const handleSubmit = e => {
-  e.preventDefault();
+  const reset = () => {
+    setcontactName('');
+    setNumber('');
+  };
 
-  if (contacts.some(({ name }) => name === contactName.toLowerCase())) {
-    Notiflix.Notify.warning(`Contact "${contactName}" is already in your contacts list`);
-    return;
-  }
-  dispatch(
-    addContact({
-      name: contactName,
-      number,
-      id: nanoid(),
-    })
-  );
-
-  setcontactName('');
-  setNumber('');
-};
-
-const handleChange = e => {
-  const { value, name } = e.target;
-
-  switch (name) {
+  const handleChange = evt => {
+    // console.log(evt)
+    const { name, value } = evt.target;
+    switch (name) {
     case 'name':
       setcontactName(value);
       break;
@@ -46,7 +34,28 @@ const handleChange = e => {
     default:
       return;
   }
-};
+  };
+
+  const handleSubmit = e => {
+    // console.log(e.target.number.value)
+    const { name , number} = e.target;
+    const contact = {
+      name: name.value,
+      phone: number.value,
+    };
+    // console.log(contact);
+    e.preventDefault();
+    if (contacts.some(({ name }) => name === contactName.toLowerCase())) {
+    Notiflix.Notify.warning(`Contact "${contactName}" is already in your contacts list`);
+    return;
+//   }
+    } else {
+      dispatch(addContactsThunk(contact));
+      reset();
+    }
+  };
+
+  const contacts = useSelector(state => state.contacts.items);
 
   return (
     <Form onSubmit={handleSubmit}>
@@ -78,3 +87,4 @@ const handleChange = e => {
 };
 
 export default ContactForm;
+
