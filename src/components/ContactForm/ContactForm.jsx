@@ -45,10 +45,16 @@ const ContactForm = () => {
     };
     // console.log(contact);
     e.preventDefault();
-    if (contacts.some(({ name }) => name === contactName.toLowerCase())) {
-    Notiflix.Notify.warning(`Contact "${contactName}" is already in your contacts list`);
-    return;
-//   }
+    if (
+      contacts.some(
+        ({ name }) => name.toLowerCase() === contactName.toLowerCase()
+      )
+    ) {
+      Notiflix.Notify.warning(
+        `Contact "${contactName}" is already in your contacts list`
+      );
+      return;
+      //   }
     } else {
       dispatch(addContactsThunk(contact));
       reset();

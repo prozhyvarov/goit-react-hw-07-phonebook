@@ -1,16 +1,26 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 
 import { List, Item, Button } from './ContactList.styled';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { delContactsThunk } from 'redux/contactsThunk';
 
-const ContactList = ({ listContact }) => {
+const ContactList = () => {
   const dispatch = useDispatch();
+  
+  const contacts = useSelector(state => state.contacts.items);
+  const filtered = useSelector(state => state.filter);
+
+  const filterContact = () => {
+    const filteredContacts = contacts.filter(contact =>
+      contact.name.toLowerCase().includes(filtered.toLowerCase())
+    );
+    // console.log(filteredContacts);
+    return filteredContacts;
+  };
 
   return (
     <List>
-      {listContact.map(({ id, name, phone }) => (
+      {filterContact().map(({ id, name, phone }) => (
         <Item key={id}>
           {name + ' : ' + phone}
           {
@@ -31,7 +41,3 @@ const ContactList = ({ listContact }) => {
 };
 
 export default ContactList;
-
-ContactList.propTypes = {
-  listContact: PropTypes.array.isRequired,
-};

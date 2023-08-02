@@ -4,8 +4,6 @@ import {
   delContactsThunk,
   getContactsThunk,
 } from './contactsThunk';
-import storage from 'redux-persist/lib/storage';
-import persistReducer from 'redux-persist/es/persistReducer';
 
 const handlePaending = state => {
   state.isLoading = true;
@@ -49,16 +47,6 @@ const sliceContact = createSlice({
   },
 });
 
-const persistConfig = {
-  key: 'root',
-  storage,
-  blacklist: ['filter'],
-};
-
-export const persistedContactReducer = persistReducer(
-  persistConfig,
-  sliceContact.reducer
-);
 
 export const { addContactsActions, delContactsActions } = sliceContact.actions;
 export const contactsReducer = sliceContact.reducer;
